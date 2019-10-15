@@ -1,0 +1,30 @@
+version: "3.7"
+networks:
+  mynet:
+    driver: overlay
+configs:
+  haproxy-cfg:
+    file: haproxy.cfg    
+services:
+  apache:
+    image: sri96/stat_apa:1 
+    networks:
+      - mynet    
+  nginx:
+    image: sri96/stat:189
+    networks:
+      - mynet    
+  proxy:
+    image: haproxy
+    ports:
+      - 83:83 # URL Based     
+      - 82:82 # Apache
+      - 81:81 # Nginx    
+      - 80:80 # Roundrobin
+      - 9001:9000 # Haproxy Stats
+    networks:
+      - mynet
+    configs:
+      - source: haproxy-cfg
+        target: /usr/local/etc/haproxy/haproxy.cfg
+
